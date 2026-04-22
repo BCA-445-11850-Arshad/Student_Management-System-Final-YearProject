@@ -1,0 +1,63 @@
+# Student Management System - Security Configuration
+# Hide PHP files and sensitive information
+
+# Disable directory listing
+Options -Indexes
+
+# Hide PHP version information
+<IfModule mod_headers.c>
+    Header always unset X-Powered-By
+    Header set X-Frame-Options DENY
+    Header set X-Content-Type-Options nosniff
+    Header set Referrer-Policy strict-origin-when-cross-origin
+</IfModule>
+
+# Prevent access to sensitive files
+<FilesMatch "\.(htaccess|htpasswd|ini|log|sh|inc|bak|sql)$">
+    Order Allow,Deny
+    Deny from all
+</FilesMatch>
+
+# Redirect root to frontend home
+DirectoryIndex frontend/home.php index.php index.html
+RewriteRule ^$ frontend/home.php [L]
+
+# Prevent access to logs directory directly
+RewriteEngine On
+RewriteRule ^logs/ - [F,L]
+
+# Allow access to uploads directory for images
+RewriteRule ^uploads/ - [L]
+
+# URL Rewriting for common pages
+RewriteRule ^admin_login/?$ frontend/admin_login.php [L]
+RewriteRule ^student_login/?$ frontend/student_login.php [L]
+RewriteRule ^admin_dashboard/?$ frontend/admin_dashboard.php [L]
+RewriteRule ^student_dashboard/?$ frontend/student_dashboard.php [L]
+RewriteRule ^profile/?$ frontend/profile.php [L]
+RewriteRule ^about/?$ frontend/about.php [L]
+RewriteRule ^contact/?$ frontend/contact.php [L]
+RewriteRule ^change_password/?$ frontend/change_password.php [L]
+RewriteRule ^edit_profile/?$ frontend/edit_profile.php [L]
+RewriteRule ^class_notices/?$ frontend/class_notices.php [L]
+RewriteRule ^public_notices/?$ frontend/public_notices.php [L]
+RewriteRule ^contact_messages/?$ frontend/contact_messages.php [L]
+
+# PHP error handling (additional layer)
+php_flag display_errors off
+php_flag display_startup_errors off
+php_flag log_errors on
+php_value error_log "logs/php_error.log"
+
+# Security headers
+<IfModule mod_headers.c>
+    Header set X-XSS-Protection "1; mode=block"
+    Header set Strict-Transport-Security "max-age=31536000; includeSubDomains"
+</IfModule>
+
+# Prevent hotlinking
+RewriteEngine on
+RewriteCond %{HTTP_REFERER} !^$
+RewriteCond %{HTTP_REFERER} !^https?://(www\.)?localhost [NC]
+RewriteCond %{HTTP_REFERER} !^https?://(www\.)?127\.0\.0\.1 [NC]
+RewriteRule \.(gif|jpe?g|png|bmp|ico)$ - [F,NC,L]

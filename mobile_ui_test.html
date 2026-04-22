@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mobile UI Test</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        /* Base styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #f8fafc;
+            color: #1e293b;
+        }
+
+        /* Navbar */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 60px;
+            background: white;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 16px;
+            z-index: 1000;
+        }
+
+        .mobile-menu-toggle {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            background: #f1f5f9;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .mobile-menu-toggle:hover {
+            background: #e2e8f0;
+        }
+
+        .mobile-menu-toggle i {
+            font-size: 18px;
+            color: #475569;
+        }
+
+        .navbar-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1e293b;
+        }
+
+        .profile-trigger {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #f1f5f9;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .profile-trigger:hover {
+            background: #e2e8f0;
+        }
+
+        .profile-trigger i {
+            font-size: 18px;
+            color: #475569;
+        }
+
+        /* Profile Dropdown */
+        .profile-dropdown {
+            position: absolute;
+            top: 50px;
+            right: 0;
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            min-width: 200px;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: all 0.2s ease;
+            z-index: 1001;
+        }
+
+        .profile-dropdown.active {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .profile-dropdown a {
+            display: block;
+            padding: 12px 16px;
+            color: #475569;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .profile-dropdown a:hover {
+            background: #f8fafc;
+            color: #1e293b;
+        }
+
+        .profile-dropdown a:last-child {
+            border-bottom: none;
+            color: #dc2626;
+        }
+
+        .profile-dropdown a:last-child:hover {
+            background: #fef2f2;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            position: fixed;
+            top: 60px;
+            left: 0;
+            width: 240px;
+            height: calc(100vh - 60px);
+            background: white;
+            border-right: 1px solid #e2e8f0;
+            transform: translateX(-100%);
+            transition: transform 0.3s ease;
+            z-index: 999;
+        }
+
+        .sidebar.active {
+            transform: translateX(0);
+        }
+
+        .sidebar ul {
+            list-style: none;
+            padding: 16px 0;
+        }
+
+        .sidebar li a {
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
+            color: #64748b;
+            text-decoration: none;
+            transition: all 0.2s ease;
+        }
+
+        .sidebar li a:hover {
+            background: #f8fafc;
+            color: #1e293b;
+        }
+
+        .sidebar li a i {
+            margin-right: 12px;
+            width: 20px;
+        }
+
+        /* Sidebar Overlay */
+        .sidebar-overlay {
+            position: fixed;
+            top: 60px;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            z-index: 998;
+        }
+
+        .sidebar-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-top: 60px;
+            padding: 20px;
+            min-height: calc(100vh - 60px);
+        }
+
+        /* Mobile Styles */
+        @media (max-width: 768px) {
+            .navbar {
+                height: 56px;
+                padding: 0 12px;
+            }
+
+            .navbar-title {
+                font-size: 16px;
+            }
+
+            .main-content {
+                padding: 12px;
+            }
+
+            .sidebar {
+                transform: translateX(-100%);
+            }
+
+            .sidebar.active {
+                transform: translateX(0);
+            }
+        }
+
+        /* Test Content */
+        .test-section {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .test-section h2 {
+            margin-bottom: 16px;
+            color: #1e293b;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e2e8f0;
+        }
+
+        @media (max-width: 768px) {
+            .stats-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 12px;
+            }
+
+            .stat-card {
+                padding: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar">
+        <button class="mobile-menu-toggle" onclick="toggleSidebar()">
+            <i class="fas fa-bars"></i>
+        </button>
+        <div class="navbar-title">Student MS</div>
+        <div class="profile-trigger" onclick="toggleProfileDropdown(event)">
+            <i class="fas fa-user"></i>
+            <div class="profile-dropdown" id="profileDropdown">
+                <a href="#"><i class="fas fa-user"></i> View Profile</a>
+                <a href="#"><i class="fas fa-edit"></i> Edit Profile</a>
+                <a href="#"><i class="fas fa-key"></i> Change Password</a>
+                <a href="#"><i class="fas fa-sign-out-alt"></i> Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+        <ul>
+            <li><a href="#"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+            <li><a href="#"><i class="fas fa-users"></i> Students</a></li>
+            <li><a href="#"><i class="fas fa-school"></i> Classes</a></li>
+            <li><a href="#"><i class="fas fa-layer-group"></i> Batches</a></li>
+            <li><a href="#"><i class="fas fa-bullhorn"></i> Notices</a></li>
+            <li><a href="#"><i class="fas fa-envelope"></i> Messages</a></li>
+        </ul>
+    </aside>
+
+    <!-- Sidebar Overlay -->
+    <div class="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="test-section">
+            <h2>Mobile UI Test</h2>
+            <p>This is a test of the mobile UI implementation. Resize your browser to mobile size to see the responsive behavior.</p>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div style="font-size: 24px; font-weight: bold; color: #667eea;">150</div>
+                <div style="color: #64748b;">Total Students</div>
+            </div>
+            <div class="stat-card">
+                <div style="font-size: 24px; font-weight: bold; color: #f5576c;">12</div>
+                <div style="color: #64748b;">Total Classes</div>
+            </div>
+            <div class="stat-card">
+                <div style="font-size: 24px; font-weight: bold; color: #00f2fe;">8</div>
+                <div style="color: #64748b;">Total Batches</div>
+            </div>
+            <div class="stat-card">
+                <div style="font-size: 24px; font-weight: bold; color: #38f9d7;">25</div>
+                <div style="color: #64748b;">Total Notices</div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Sidebar Toggle
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.querySelector('.sidebar-overlay');
+            const toggleBtn = document.querySelector('.mobile-menu-toggle');
+
+            if (window.innerWidth <= 768) {
+                sidebar.classList.toggle('active');
+                overlay.classList.toggle('active');
+                toggleBtn.classList.toggle('active');
+            }
+        }
+
+        // Profile Dropdown Toggle
+        function toggleProfileDropdown(event) {
+            if (event) {
+                if (event.target.closest('#profileDropdown')) {
+                    return;
+                }
+                event.stopPropagation();
+            }
+            const dropdown = document.getElementById('profileDropdown');
+            if (dropdown) {
+                dropdown.classList.toggle('active');
+            }
+        }
+
+        // Close dropdowns when clicking outside
+        document.addEventListener('click', function(event) {
+            const dropdown = document.getElementById('profileDropdown');
+            const profileTrigger = document.querySelector('.profile-trigger');
+
+            if (dropdown && profileTrigger && !profileTrigger.contains(event.target)) {
+                dropdown.classList.remove('active');
+            }
+
+            // Close sidebar on mobile when clicking outside
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.querySelector('.sidebar-overlay');
+            const toggleBtn = document.querySelector('.mobile-menu-toggle');
+
+            if (!event.target.closest('.sidebar') && !event.target.closest('.mobile-menu-toggle')) {
+                if (window.innerWidth <= 768) {
+                    sidebar.classList.remove('active');
+                    overlay.classList.remove('active');
+                    if (toggleBtn) toggleBtn.classList.remove('active');
+                }
+            }
+        });
+    </script>
+</body>
+</html>
